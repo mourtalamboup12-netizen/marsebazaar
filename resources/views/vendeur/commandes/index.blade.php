@@ -58,22 +58,29 @@
                     {{ number_format($commande->montant_total, 0, ',', ' ') }} F
                 </span>
 
-                @if($statutActuel !== 'livree')
-                    <form method="POST" action="{{ route('vendeur.commandes.statut', $commande) }}" class="flex gap-2">
-                        @csrf
-                        <select name="statut" class="rounded-lg border-gray-300 focus:border-[#1E2A4A] focus:ring-[#1E2A4A] text-sm py-1.5">
-                            @foreach($etapes as $etape)
-                                <option value="{{ $etape }}" @selected($etape === $statutActuel)>
-                                    {{ $labels[$etape] }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <button type="submit"
-                            class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-4 py-1.5 rounded-lg text-sm font-bold transition">
-                            Mettre à jour
-                        </button>
-                    </form>
-                @endif
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('vendeur.commandes.show', $commande) }}"
+                       class="text-sm font-semibold text-[#1E2A4A] border border-gray-200 hover:border-[#1E2A4A] px-3 py-1.5 rounded-lg transition">
+                        Voir / Discuter
+                    </a>
+
+                    @if($statutActuel !== 'livree')
+                        <form method="POST" action="{{ route('vendeur.commandes.statut', $commande) }}" class="flex gap-2">
+                            @csrf
+                            <select name="statut" class="rounded-lg border-gray-300 focus:border-[#1E2A4A] focus:ring-[#1E2A4A] text-sm py-1.5">
+                                @foreach($etapes as $etape)
+                                    <option value="{{ $etape }}" @selected($etape === $statutActuel)>
+                                        {{ $labels[$etape] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="submit"
+                                class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-4 py-1.5 rounded-lg text-sm font-bold transition">
+                                Mettre à jour
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         </div>
     @empty

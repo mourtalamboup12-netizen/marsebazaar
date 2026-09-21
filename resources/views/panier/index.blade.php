@@ -12,8 +12,14 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @forelse($produits as $ligne)
-        <div class="flex items-center justify-between bg-white border border-gray-100 rounded-xl shadow-sm px-5 py-4 mb-3">
+        <div class="flex items-center justify-between bg-white border border-gray-100 shadow-sm rounded-xl px-5 py-4 mb-3">
             <div class="flex items-center gap-4">
                 <div class="w-14 h-14 bg-[#F1E9D8] rounded-lg flex items-center justify-center text-2xl">
                     🛍️

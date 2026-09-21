@@ -30,14 +30,44 @@
             </p>
 
             <form method="POST" action="{{ route('panier.ajouter', $produit) }}" class="mt-6">
-                @csrf
-                <input type="hidden" name="quantite" value="1">
-                <button type="submit" class="bg-[#1E2A4A] text-white px-6 py-3 rounded-lg font-bold">
-                    Ajouter au panier
-                </button>
+              @csrf
+
+             <label class="text-sm font-bold text-[#1E2A4A] block mb-2">Quantité</label>
+             <input type="number" name="quantite" value="1" min="1" max="{{ $produit->stock }}"
+                    class="w-24 rounded-lg border-gray-300 focus:border-[#1E2A4A] focus:ring-[#1E2A4A] mb-4">
+
+             <button type="submit" class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-6 py-3 rounded-lg font-bold w-full transition">
+        Ajouter au panier
+             </button>
             </form>
         </div>
 
+    </div>
+    {{-- Poser une question au vendeur --}}
+    <div class="mt-8 max-w-md">
+        <h2 class="font-bold text-[#1E2A4A] mb-3">Une question sur ce produit ?</h2>
+
+        @auth
+            @if(session('success'))
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded-lg mb-3 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('questions.store', $produit) }}" class="flex gap-2">
+                @csrf
+                <input type="text" name="contenu" required placeholder="Écrire une question..."
+                       class="flex-1 rounded-lg border-gray-300 focus:border-[#1E2A4A] focus:ring-[#1E2A4A] text-sm">
+                <button type="submit"
+                    class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-4 py-2 rounded-lg text-sm font-bold transition">
+                    Envoyer
+                </button>
+            </form>
+        @else
+            <p class="text-sm text-gray-500">
+                <a href="{{ route('login') }}" class="underline">Connecte-toi</a> pour poser une question au vendeur.
+            </p>
+        @endauth
     </div>
 
     <div class="mt-10">

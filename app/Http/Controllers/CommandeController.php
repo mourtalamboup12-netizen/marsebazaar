@@ -34,11 +34,12 @@ class CommandeController extends Controller
         return view('commande.checkout', compact('produits', 'total'));
     }
 
-    // Valide la commande : crée Commande + LigneCommande + premier SuiviCommande
+    // Valide la commande : vérifie le stock, crée Commande + LigneCommande + premier SuiviCommande, décrémente le stock
     public function valider(Request $request)
     {
         $request->validate([
             'mode_paiement' => 'required|in:wave,orange_money,livraison',
+            'telephone' => 'required|string|min:9|max:20',
         ]);
 
         $panier = session('panier', []);
@@ -50,17 +51,26 @@ class CommandeController extends Controller
         $total = 0;
         $lignes = [];
 
+        // Étape 1 : vérifier le stock AVANT de créer quoi que ce soit
         foreach ($panier as $id => $quantite) {
             $produit = Produit::find($id);
-            if ($produit) {
-                $sousTotal = $produit->prix * $quantite;
-                $total += $sousTotal;
-                $lignes[] = [
-                    'produit' => $produit,
-                    'quantite' => $quantite,
-                    'prix_unitaire' => $produit->prix,
-                ];
+
+            if (!$produit) {
+                continue;
             }
+
+            if ($produit->stock < $quantite) {
+                return redirect()->route('panier.index')
+                    ->with('error', "Stock insuffisant pour \"{$produit->nom_produit}\" (disponible : {$produit->stock}).");
+            }
+
+            $sousTotal = $produit->prix * $quantite;
+            $total += $sousTotal;
+            $lignes[] = [
+                'produit' => $produit,
+                'quantite' => $quantite,
+                'prix_unitaire' => $produit->prix,
+            ];
         }
 
         $statutPaiement = $request->mode_paiement === 'livraison' ? 'regle_a_la_livraison' : 'en_attente';
@@ -68,6 +78,7 @@ class CommandeController extends Controller
         $commande = Commande::create([
             'montant_total' => $total,
             'mode_paiement' => $request->mode_paiement,
+            'telephone' => $request->telephone,
             'statut_paiement' => $statutPaiement,
             'id_client' => auth()->id(),
         ]);
@@ -79,6 +90,9 @@ class CommandeController extends Controller
                 'quantite' => $ligne['quantite'],
                 'prix_unitaire' => $ligne['prix_unitaire'],
             ]);
+
+            // Étape 2 : décrémenter le stock après création de la ligne
+            $ligne['produit']->decrement('stock', $ligne['quantite']);
         }
 
         SuiviCommande::create([
@@ -96,6 +110,7 @@ class CommandeController extends Controller
     {
         return view('commande.confirmation', compact('commande'));
     }
+
     // Liste des commandes du client connecté
     public function historique()
     {

@@ -29,6 +29,17 @@
           x-data="{ mode: '' }">
         @csrf
 
+        {{-- Téléphone --}}
+        <div class="mb-6">
+            <label class="text-sm font-bold text-[#1E2A4A] block mb-2">Numéro de téléphone (pour te contacter)</label>
+            <input type="tel" name="telephone" value="{{ old('telephone') }}" required
+                   placeholder="77 123 45 67"
+                   class="w-full rounded-lg border-gray-300 focus:border-[#1E2A4A] focus:ring-[#1E2A4A]">
+            @error('telephone')
+                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         <h2 class="font-bold text-[#1E2A4A] mb-4">Mode de paiement</h2>
 
         <label class="flex items-center gap-3 border rounded-lg px-4 py-3 mb-3 cursor-pointer transition"

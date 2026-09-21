@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Commande extends Model
 {
     protected $fillable = [
-        'montant_total', 'mode_paiement', 'statut_paiement', 'id_client',
+        'montant_total', 'mode_paiement', 'telephone','statut_paiement', 'id_client',
     ];
 
     public function client()
@@ -23,5 +23,9 @@ class Commande extends Model
     public function suivis()
     {
         return $this->hasMany(SuiviCommande::class, 'id_commande');
+    }
+    public function messages()
+    {
+     return $this->hasMany(Message::class, 'id_commande')->with('expediteur')->oldest();
     }
 }

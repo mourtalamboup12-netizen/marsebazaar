@@ -169,6 +169,22 @@ class VendeurController extends Controller
         return view('vendeur.commandes.index', compact('commandes', 'etapes'));
     }
 
+    public function commandeDetail(\App\Models\Commande $commande)
+    {
+       $boutique = auth()->user()->boutique;
+       $idsProduits = $boutique->produits()->pluck('id');
+
+       $appartientALaBoutique = $commande->lignes()->whereIn('id_produit', $idsProduits)->exists();
+       if (!$appartientALaBoutique) {
+          abort(403);
+       }
+
+        $commande->load('client', 'suivis', 'lignes.produit', 'messages');
+        $etapes = ['confirmee', 'en_preparation', 'expediee', 'en_livraison', 'livree'];
+
+        return view('vendeur.commandes.show', compact('commande', 'etapes'));
+    }
+
     // Fait avancer le statut ColisPlus d'une commande
     public function majStatut(Request $request, \App\Models\Commande $commande)
     {
@@ -192,4 +208,36 @@ class VendeurController extends Controller
 
         return redirect()->route('vendeur.commandes')->with('success', 'Statut mis à jour.');
     }
-}
+    // ... tes méthodes existantes (dashboard, produits, commandes, etc.) ...
+
+    public function questions()
+    {
+        $boutique = auth()->user()->boutique;
+        $idsProduits = $boutique->produits()->pluck('id');
+
+        $fils = \App\Models\MessageProduit::whereIn('id_produit', $idsProduits)
+            ->with('produit', 'client')
+            ->latest()
+            ->get()
+            ->unique(fn($m) => $m->id_produit . '-' . $m->id_client);
+
+        return view('vendeur.questions.index', compact('fils'));
+    }
+
+    public function questionDetail(\App\Models\Produit $produit, \App\Models\User $client)
+    {
+        $boutique = auth()->user()->boutique;
+        if ($produit->id_boutique !== $boutique->id) {
+            abort(403);
+        }
+
+        $messages = \App\Models\MessageProduit::where('id_produit', $produit->id)
+            ->where('id_client', $client->id)
+            ->with('expediteur')
+            ->oldest()
+            ->get();
+
+        return view('vendeur.questions.show', compact('produit', 'client', 'messages'));
+    }
+
+} // <-- cette accolade ferme la classe VendeurController, ne pas la dupliquer

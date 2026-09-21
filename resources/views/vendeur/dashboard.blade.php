@@ -45,6 +45,10 @@
            class="bg-white border border-gray-200 hover:border-[#1E2A4A] text-[#1E2A4A] px-5 py-3 rounded-lg font-semibold transition">
             Commandes reçues
         </a>
+        <a href="{{ route('vendeur.questions') }}"
+           class="bg-white border border-gray-200 hover:border-[#1E2A4A] text-[#1E2A4A] px-5 py-3 rounded-lg font-semibold transition">
+            Questions clients
+        </a>
     </div>
 
 @endsection

@@ -25,4 +25,8 @@ class Produit extends Model
     {
         return $this->hasMany(Avis::class, 'id_produit');
     }
+    public function messagesProduits()
+    {
+        return $this->hasMany(MessageProduit::class, 'id_produit');
+    }
 }

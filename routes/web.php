@@ -8,6 +8,8 @@ use App\Http\Controllers\VendeurController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\http\controllers\AvisController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\MessageProduitController;
 
 Route::get('/', function () {
     return redirect()->route('produits.index');
@@ -22,9 +24,18 @@ Route::get('/produits', [ProduitController::class, 'index'])->name('produits.ind
 Route::get('/produits/{produit}', [ProduitController::class, 'show'])->name('produits.show');
 
 Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user->role === 'vendeur') {
+        return redirect()->route('vendeur.dashboard');
+    }
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/commande/{commande}/confirmation', [CommandeController::class, 'confirmation'])->name('commande.confirmation');
     Route::get('/mes-commandes', [CommandeController::class, 'historique'])->name('commande.historique');
     Route::get('/commande/{commande}/suivi', [CommandeController::class, 'suivi'])->name('commande.suivi');
+    Route::post('/commande/{commande}/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/produits/{produit}/questions', [MessageProduitController::class, 'store'])->name('questions.store');
 
     Route::prefix('vendeur')->group(function () {
         Route::get('/dashboard', [VendeurController::class, 'dashboard'])->name('vendeur.dashboard');
@@ -48,9 +61,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/produits/{produit}/modifier', [VendeurController::class, 'editProduit'])->name('vendeur.produits.edit');
         Route::put('/produits/{produit}', [VendeurController::class, 'updateProduit'])->name('vendeur.produits.update');
         Route::delete('/produits/{produit}', [VendeurController::class, 'destroyProduit'])->name('vendeur.produits.destroy');
+        Route::get('/questions', [VendeurController::class, 'questions'])->name('vendeur.questions');
+Route::get('/questions/{produit}/{client}', [VendeurController::class, 'questionDetail'])->name('vendeur.questions.show');
+Route::post('/questions/{produit}/{client}', [MessageProduitController::class, 'repondre'])->name('questions.repondre');
 
         Route::get('/commandes', [VendeurController::class, 'commandes'])->name('vendeur.commandes');
         Route::post('/commandes/{commande}/statut', [VendeurController::class, 'majStatut'])->name('vendeur.commandes.statut');
+        Route::get('/commandes/{commande}', [VendeurController::class, 'commandeDetail'])->name('vendeur.commandes.show');
     });
 
     Route::prefix('admin')->group(function () {
