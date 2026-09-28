@@ -19,11 +19,30 @@
                     'expediee' => 'Expédiée',
                     'en_livraison' => 'En livraison',
                     'livree' => 'Livrée',
+                    'annulee' => 'Annulée',
                 ];
             @endphp
             {{ $labels[$etapes[$indexActuel]] }}
         </h1>
     </div>
+
+    @if(session('error'))
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-6 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if($etapes[$indexActuel] === 'confirmee')
+        <form method="POST" action="{{ route('commande.annuler', $commande) }}"
+              onsubmit="return confirm('Es-tu sûr de vouloir annuler cette commande ?');"
+              class="mb-6">
+            @csrf
+            <button type="submit"
+                class="text-sm font-semibold text-red-600 border border-red-200 hover:bg-red-50 px-4 py-2 rounded-lg transition">
+                Annuler ma commande
+            </button>
+        </form>
+    @endif
 
     <div class="max-w-md">
         @foreach($etapes as $i => $etape)

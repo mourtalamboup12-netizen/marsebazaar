@@ -21,6 +21,7 @@
             'expediee' => 'Expédiée',
             'en_livraison' => 'En livraison',
             'livree' => 'Livrée',
+            'annulee' => 'Annulée',
         ];
         $statutActuel = $commande->suivis->last()->statut ?? 'confirmee';
     @endphp

@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/devenir-vendeur', [ProfileController::class, 'devenirVendeur'])->name('devenir.vendeur');
     
     Route::post('/produits/{produit}/avis', [AvisController::class, 'store'])->name('avis.store');
     Route::get('/commande/checkout', [CommandeController::class, 'checkout'])->name('commande.checkout');
@@ -48,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/commande/{commande}/confirmation', [CommandeController::class, 'confirmation'])->name('commande.confirmation');
     Route::get('/mes-commandes', [CommandeController::class, 'historique'])->name('commande.historique');
     Route::get('/commande/{commande}/suivi', [CommandeController::class, 'suivi'])->name('commande.suivi');
+    Route::post('/commande/{commande}/annuler', [CommandeController::class, 'annuler'])->name('commande.annuler');
     Route::post('/commande/{commande}/messages', [MessageController::class, 'store'])->name('messages.store');
     Route::post('/produits/{produit}/questions', [MessageProduitController::class, 'store'])->name('questions.store');
 

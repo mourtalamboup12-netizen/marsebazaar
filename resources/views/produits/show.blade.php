@@ -8,9 +8,13 @@
 
     <div class="mt-4 grid md:grid-cols-2 gap-8">
 
-        <div class="h-64 bg-[#F1E9D8] rounded-xl flex items-center justify-center text-6xl">
-            🛍️
-        </div>
+        <div class="h-64 bg-[#F1E9D8] rounded-xl flex items-center justify-center text-6xl overflow-hidden">
+    @if($produit->photo)
+        <img src="{{ asset('storage/'.$produit->photo) }}" class="object-cover w-full h-full">
+        @else
+           🛍️
+        @endif
+    </div>
 
         <div>
             <p class="text-sm font-bold text-[#3B6E4E]">

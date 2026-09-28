@@ -105,6 +105,33 @@ class CommandeController extends Controller
         return redirect()->route('commande.confirmation', $commande)->with('success', 'Commande passée avec succès !');
     }
 
+    public function annuler(Commande $commande)
+    {
+     if ($commande->id_client !== auth()->id()) {
+        abort(403);
+     }
+
+     $statutActuel = $commande->suivis->last()->statut ?? 'confirmee';
+
+     if ($statutActuel !== 'confirmee') {
+        return redirect()->route('commande.suivi', $commande)
+            ->with('error', "Cette commande ne peut plus être annulée.");
+     }
+
+      // Remettre le stock de chaque produit commandé
+      foreach ($commande->lignes as $ligne) {
+        $ligne->produit->increment('stock', $ligne->quantite);
+    }
+
+    SuiviCommande::create([
+        'id_commande' => $commande->id,
+        'statut' => 'annulee',
+    ]);
+
+     return redirect()->route('commande.historique')
+        ->with('success', 'Commande annulée avec succès. Le stock a été remis à jour.');
+    }
+
     // Page de confirmation après commande
     public function confirmation(Commande $commande)
     {

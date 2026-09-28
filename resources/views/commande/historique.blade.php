@@ -15,6 +15,7 @@
                 'expediee' => 'Expédiée',
                 'en_livraison' => 'En livraison',
                 'livree' => 'Livrée',
+                'annulee' => 'Annulée',
             ];
             $icones = [
                 'confirmee' => '✅',
@@ -22,6 +23,7 @@
                 'expediee' => '🚚',
                 'en_livraison' => '🛵',
                 'livree' => '🏠',
+                'annulee' => '❌',
             ];
         @endphp
 

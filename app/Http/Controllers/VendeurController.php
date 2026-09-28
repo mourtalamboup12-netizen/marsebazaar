@@ -86,26 +86,33 @@ class VendeurController extends Controller
 
     // Enregistrer le nouveau produit
     public function storeProduit(Request $request)
-    {
-        $request->validate([
-            'nom_produit' => 'required|string|max:150',
-            'description' => 'nullable|string',
-            'prix' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'id_categorie' => 'required|exists:categories,id',
-        ]);
+{
+    $request->validate([
+        'nom_produit' => 'required|string|max:150',
+        'description' => 'nullable|string',
+        'prix' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0',
+        'id_categorie' => 'required|exists:categories,id',
+        'photo' => 'nullable|image|max:2048',
+    ]);
 
-        \App\Models\Produit::create([
-            'nom_produit' => $request->nom_produit,
-            'description' => $request->description,
-            'prix' => $request->prix,
-            'stock' => $request->stock,
-            'id_categorie' => $request->id_categorie,
-            'id_boutique' => auth()->user()->boutique->id,
-        ]);
-
-        return redirect()->route('vendeur.produits')->with('success', 'Produit ajouté avec succès !');
+    $cheminPhoto = null;
+    if ($request->hasFile('photo')) {
+        $cheminPhoto = $request->file('photo')->store('produits', 'public');
     }
+
+    \App\Models\Produit::create([
+        'nom_produit' => $request->nom_produit,
+        'description' => $request->description,
+        'prix' => $request->prix,
+        'stock' => $request->stock,
+        'id_categorie' => $request->id_categorie,
+        'id_boutique' => auth()->user()->boutique->id,
+        'photo' => $cheminPhoto,
+    ]);
+
+    return redirect()->route('vendeur.produits')->with('success', 'Produit ajouté avec succès !');
+}
 
     // Formulaire de modification
     public function editProduit(\App\Models\Produit $produit)
@@ -119,36 +126,44 @@ class VendeurController extends Controller
     }
 
     // Enregistrer la modification
+    
     public function updateProduit(Request $request, \App\Models\Produit $produit)
-    {
-        if ($produit->id_boutique !== auth()->user()->boutique->id) {
-            abort(403);
-        }
-
-        $request->validate([
-            'nom_produit' => 'required|string|max:150',
-            'description' => 'nullable|string',
-            'prix' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'id_categorie' => 'required|exists:categories,id',
-        ]);
-
-        $produit->update($request->only(['nom_produit', 'description', 'prix', 'stock', 'id_categorie']));
-
-        return redirect()->route('vendeur.produits')->with('success', 'Produit mis à jour.');
+{
+    if ($produit->id_boutique !== auth()->user()->boutique->id) {
+        abort(403);
     }
 
-    // Supprimer un produit
-    public function destroyProduit(\App\Models\Produit $produit)
-    {
-        if ($produit->id_boutique !== auth()->user()->boutique->id) {
-            abort(403);
-        }
+    $request->validate([
+        'nom_produit' => 'required|string|max:150',
+        'description' => 'nullable|string',
+        'prix' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0',
+        'id_categorie' => 'required|exists:categories,id',
+        'photo' => 'nullable|image|max:2048',
+    ]);
 
-        $produit->delete();
+    $produit->update($request->only(['nom_produit', 'description', 'prix', 'stock', 'id_categorie']));
 
-        return redirect()->route('vendeur.produits')->with('success', 'Produit supprimé.');
+    if ($request->hasFile('photo')) {
+        $produit->photo = $request->file('photo')->store('produits', 'public');
+        $produit->save();
     }
+
+    return redirect()->route('vendeur.produits')->with('success', 'Produit mis à jour.');
+}
+
+// Supprimer un produit
+public function destroyProduit(\App\Models\Produit $produit)
+{
+    if ($produit->id_boutique !== auth()->user()->boutique->id) {
+        abort(403);
+    }
+
+    $produit->delete();
+
+    return redirect()->route('vendeur.produits')->with('success', 'Produit supprimé.');
+}
+
     // Liste des commandes contenant au moins un produit de la boutique
     public function commandes()
     {

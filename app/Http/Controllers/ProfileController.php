@@ -37,6 +37,21 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    public function devenirVendeur()
+{
+    $user = auth()->user();
+
+    if ($user->role === 'vendeur') {
+        return redirect()->route('vendeur.dashboard');
+    }
+
+    $user->role = 'vendeur';
+    $user->save();
+
+    return redirect()->route('vendeur.dashboard')
+        ->with('success', 'Tu es maintenant vendeur ! Crée ta boutique pour commencer.');
+}
+
     /**
      * Delete the user's account.
      */

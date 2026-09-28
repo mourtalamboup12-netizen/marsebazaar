@@ -29,8 +29,12 @@
         @forelse($produits as $produit)
             <a href="{{ route('produits.show', $produit) }}"
                class="bg-white border border-[#E4DAC5] rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition">
-                <div class="h-32 bg-[#F1E9D8] flex items-center justify-center text-4xl">
-                    🛍️
+                <div class="h-32 bg-[#F1E9D8] flex items-center justify-center text-4xl overflow-hidden">
+                    @if($produit->photo)
+                       <img src="{{ asset('storage/'.$produit->photo) }}" class="object-cover w-full h-full">
+                    @else
+                      🛍️
+                  @endif
                 </div>
                 <div class="p-3">
                     <p class="font-bold text-sm leading-snug">{{ $produit->nom_produit }}</p>

@@ -17,6 +17,7 @@
     @endif
 
     <form method="POST" action="{{ route('vendeur.produits.update', $produit) }}"
+          enctype="multipart/form-data"
           class="max-w-md bg-white border border-gray-100 shadow-sm rounded-xl p-6">
         @csrf
         @method('PUT')
@@ -46,6 +47,9 @@
                 </option>
             @endforeach
         </select>
+        @if($produit->photo)
+            <img src="{{ asset('storage/'.$produit->photo) }}" class="w-24 h-24 object-cover rounded-lg mb-3">
+        @endif
 
         <button type="submit"
             class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-6 py-3 rounded-lg font-bold w-full transition">

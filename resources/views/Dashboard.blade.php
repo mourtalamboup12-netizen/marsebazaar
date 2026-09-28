@@ -26,5 +26,17 @@
     <a href="{{ route('panier.index') }}" class="text-sm text-[#1E2A4A] font-semibold underline">
         🛒 Voir mon panier
     </a>
+    <div class="mt-8 bg-white border border-gray-100 shadow-sm rounded-xl p-6 max-w-md">
+        <p class="font-bold text-[#1E2A4A] mb-1">Tu es aussi commerçant ?</p>
+        <p class="text-sm text-gray-500 mb-4">Ouvre ta boutique sur MarséBazaar et vends tes produits.</p>
+
+        <form method="POST" action="{{ route('devenir.vendeur') }}">
+            @csrf
+            <button type="submit"
+                class="bg-[#E1A940] hover:bg-[#c9942f] text-[#3a2a08] px-5 py-2.5 rounded-lg font-bold text-sm transition">
+                Devenir vendeur
+            </button>
+        </form>
+    </div>
 
 @endsection
