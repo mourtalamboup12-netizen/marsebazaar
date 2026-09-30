@@ -82,6 +82,12 @@
             {{ session('success') }}
         </div>
     @endif
+    
+    @if(session('error'))
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
 
     @forelse($produit->avis as $avis)
         <div class="border-b border-gray-200 py-3">

@@ -27,7 +27,7 @@
 
     <a href="{{ route('admin.boutiques') }}"
        class="bg-[#1E2A4A] hover:bg-[#2E3F68] text-white px-5 py-3 rounded-lg font-bold inline-block transition">
-        Gérer les demandes vendeurs
+        Gérer les Boutiques
     </a>
 
 @endsection

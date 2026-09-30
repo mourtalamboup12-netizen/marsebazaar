@@ -64,9 +64,10 @@ class VendeurController extends Controller
         'nom_boutique' => $request->nom_boutique,
         'description' => $request->description,
         'id_vendeur' => auth()->id(),
+        'valide' => true,
     ]);
 
-    return redirect()->route('vendeur.dashboard')->with('success', 'Boutique créée avec succès ! Elle est en attente de validation par un administrateur.');
+    return redirect()->route('vendeur.dashboard')->with('success', 'Boutique créée avec succès ! Tu peux ajouter tes produits.');
 }
     // Liste des produits de la boutique
     public function produits()
@@ -254,5 +255,81 @@ public function destroyProduit(\App\Models\Produit $produit)
 
         return view('vendeur.questions.show', compact('produit', 'client', 'messages'));
     }
+
+    public function valider(Request $request)
+{
+    $request->validate([
+        'mode_paiement' => 'required|in:wave,orange_money,livraison',
+        'telephone' => 'required|string|min:9|max:20',
+    ]);
+
+    $panier = session('panier', []);
+
+    if (empty($panier)) {
+        return redirect()->route('panier.index');
+    }
+
+    try {
+        $commande = \Illuminate\Support\Facades\DB::transaction(function () use ($panier, $request) {
+            $total = 0;
+            $lignes = [];
+
+            foreach ($panier as $id => $quantite) {
+                // Verrouille la ligne du produit jusqu'à la fin de la transaction
+                $produit = Produit::where('id', $id)->lockForUpdate()->first();
+
+                if (!$produit) {
+                    continue;
+                }
+
+                if ($produit->stock < $quantite) {
+                    throw new \Exception("Stock insuffisant pour \"{$produit->nom_produit}\" (disponible : {$produit->stock}).");
+                }
+
+                $sousTotal = $produit->prix * $quantite;
+                $total += $sousTotal;
+                $lignes[] = [
+                    'produit' => $produit,
+                    'quantite' => $quantite,
+                    'prix_unitaire' => $produit->prix,
+                ];
+            }
+
+            $statutPaiement = $request->mode_paiement === 'livraison' ? 'regle_a_la_livraison' : 'en_attente';
+
+            $commande = Commande::create([
+                'montant_total' => $total,
+                'mode_paiement' => $request->mode_paiement,
+                'telephone' => $request->telephone,
+                'statut_paiement' => $statutPaiement,
+                'id_client' => auth()->id(),
+            ]);
+
+            foreach ($lignes as $ligne) {
+                LigneCommande::create([
+                    'id_commande' => $commande->id,
+                    'id_produit' => $ligne['produit']->id,
+                    'quantite' => $ligne['quantite'],
+                    'prix_unitaire' => $ligne['prix_unitaire'],
+                ]);
+
+                $ligne['produit']->decrement('stock', $ligne['quantite']);
+            }
+
+            SuiviCommande::create([
+                'id_commande' => $commande->id,
+                'statut' => 'confirmee',
+            ]);
+
+            return $commande;
+        });
+    } catch (\Exception $e) {
+        return redirect()->route('panier.index')->with('error', $e->getMessage());
+    }
+
+    session()->forget('panier');
+
+    return redirect()->route('commande.confirmation', $commande)->with('success', 'Commande passée avec succès !');
+}
 
 } // <-- cette accolade ferme la classe VendeurController, ne pas la dupliquer

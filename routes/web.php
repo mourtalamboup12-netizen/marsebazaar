@@ -78,6 +78,8 @@ Route::post('/questions/{produit}/{client}', [MessageProduitController::class, '
         Route::get('/boutiques', [AdminController::class, 'boutiquesEnAttente'])->name('admin.boutiques');
         Route::post('/boutiques/{boutique}/valider', [AdminController::class, 'validerBoutique'])->name('admin.boutiques.valider');
         Route::delete('/boutiques/{boutique}/refuser', [AdminController::class, 'refuserBoutique'])->name('admin.boutiques.refuser');
+        Route::post('/boutiques/{boutique}/desactiver', [AdminController::class, 'desactiverBoutique'])->name('admin.boutiques.desactiver');
+Route::post('/boutiques/{boutique}/activer', [AdminController::class, 'activerBoutique'])->name('admin.boutiques.activer');
     });
 
 });

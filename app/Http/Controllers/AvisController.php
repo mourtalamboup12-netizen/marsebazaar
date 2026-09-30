@@ -15,6 +15,26 @@ class AvisController extends Controller
             'commentaire' => 'nullable|string|max:500',
         ]);
 
+        $aAchete = \App\Models\LigneCommande::where('id_produit', $produit->id)
+            ->whereHas('commande', function ($query) {
+                $query->where('id_client', auth()->id());
+            })
+            ->exists();
+
+        if (!$aAchete) {
+            return redirect()->route('produits.show', $produit)
+                ->with('error', 'Tu dois avoir acheté ce produit pour laisser un avis.');
+        }
+
+        $dejaLaisse = Avis::where('id_client', auth()->id())
+            ->where('id_produit', $produit->id)
+            ->exists();
+
+        if ($dejaLaisse) {
+            return redirect()->route('produits.show', $produit)
+                ->with('error', 'Tu as déjà laissé un avis sur ce produit.');
+        }
+
         Avis::create([
             'id_client' => auth()->id(),
             'id_produit' => $produit->id,

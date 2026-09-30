@@ -32,12 +32,13 @@ class AdminController extends Controller
         ));
     }
 
-    // Liste des boutiques en attente de validation
-    public function boutiquesEnAttente()
-    {
-        $boutiques = Boutique::where('valide', false)->with('vendeur')->get();
-        return view('admin.boutiques', compact('boutiques'));
-    }
+    // Liste de toutes les boutiques (gestion/modération)
+public function boutiquesEnAttente()
+{
+    $boutiques = Boutique::with('vendeur')->latest()->get();
+    return view('admin.boutiques', compact('boutiques'));
+}
+    
 
     // Valider une boutique
     public function validerBoutique(Boutique $boutique)
@@ -45,6 +46,18 @@ class AdminController extends Controller
         $boutique->update(['valide' => true]);
         return redirect()->route('admin.boutiques')->with('success', 'Boutique validée.');
     }
+
+    public function desactiverBoutique(\App\Models\Boutique $boutique)
+{
+    $boutique->update(['valide' => false]);
+    return back()->with('success', 'Boutique désactivée.');
+}
+
+public function activerBoutique(\App\Models\Boutique $boutique)
+{
+    $boutique->update(['valide' => true]);
+    return back()->with('success', 'Boutique réactivée.');
+}
 
     // Refuser (supprimer) une boutique
     public function refuserBoutique(Boutique $boutique)
