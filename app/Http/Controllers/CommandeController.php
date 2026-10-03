@@ -95,6 +95,21 @@ class CommandeController extends Controller
             $ligne['produit']->decrement('stock', $ligne['quantite']);
         }
 
+            // Notifie chaque vendeur concerné en temps réel
+            $boutiquesTouchees = collect($lignes)->unique(fn($l) => $l['produit']->id_boutique);
+
+foreach ($boutiquesTouchees as $ligne) {
+    try {
+        event(new \App\Events\NouvelleCommande(
+            $ligne['produit']->id_boutique,
+            $ligne['produit']->nom_produit,
+            $ligne['sous_total'] ?? ($ligne['produit']->prix * $ligne['quantite'])
+        ));
+    } catch (\Throwable $e) {
+        \Log::warning('Notification Pusher échouée : ' . $e->getMessage());
+    }
+}
+
         SuiviCommande::create([
             'id_commande' => $commande->id,
             'statut' => 'confirmee',

@@ -51,7 +51,7 @@
 
             <div class="text-sm text-gray-600 mb-3 space-y-0.5">
                 @foreach($commande->lignes as $ligne)
-                    <p>{{ $ligne->produit->nom_produit }} × {{ $ligne->quantite }}</p>
+                    <p>{{ $ligne->produit?->nom_produit ?? 'Produit indisponible' }} × {{ $ligne->quantite }}</p>
                 @endforeach
             </div>
 

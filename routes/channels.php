@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('boutique.{idBoutique}', function ($user, $idBoutique) {
+    if ($user->role !== 'vendeur') {
+        return false;
+    }
+
+    return $user->boutique && (int) $user->boutique->id === (int) $idBoutique;
+});
